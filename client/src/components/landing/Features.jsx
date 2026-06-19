@@ -13,7 +13,7 @@ export default function Features() {
       desc: 'Automatic record-keeping and renewal indicators for critical immunization.'
     },
     {
-      title: 'Lost & Found Feed',
+      title: 'Lost & Found',
       desc: 'Active registry of missing pets, helping local shelters and finders reconnect.'
     },
     {
@@ -21,7 +21,7 @@ export default function Features() {
       desc: 'Display specific recovery phone numbers to finders instantly.'
     },
     {
-      title: 'Scan History logs',
+      title: 'Scan History',
       desc: 'Real-time telemetry showing date, browser, and geographic location maps.'
     }
   ];

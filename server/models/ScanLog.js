@@ -7,6 +7,14 @@ const scanLogSchema = new mongoose.Schema(
       ref: 'Pet',
       required: true,
     },
+    qrTag: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'QRTag',
+    },
+    scannedAt: {
+      type: Date,
+      default: Date.now,
+    },
     latitude: {
       type: Number,
     },
@@ -16,18 +24,18 @@ const scanLogSchema = new mongoose.Schema(
     city: {
       type: String,
     },
-    country: {
+    browser: {
       type: String,
     },
     device: {
       type: String,
     },
-    browser: {
+    ipAddress: {
       type: String,
     },
-    scannedAt: {
-      type: Date,
-      default: Date.now,
+    ownerNotified: {
+      type: Boolean,
+      default: false,
     },
   },
   {

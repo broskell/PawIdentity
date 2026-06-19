@@ -15,7 +15,7 @@ export default function Dashboard() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  // Active Tab for owner dashboard
+  // Active Tab
   const [activeTab, setActiveTab] = useState('pets');
 
   // Add Pet Form State
@@ -25,27 +25,30 @@ export default function Dashboard() {
   const [petBreed, setPetBreed] = useState('');
   const [petGender, setPetGender] = useState('male');
   const [petDob, setPetDob] = useState('');
+  const [petWeight, setPetWeight] = useState('');
+  const [petColor, setPetColor] = useState('');
+  const [petMicrochip, setPetMicrochip] = useState('');
   const [petPhoto, setPetPhoto] = useState('');
   const [petContacts, setPetContacts] = useState([{ name: '', relation: '', phone: '' }]);
 
   // Add Medical Record State
   const [showAddRecord, setShowAddRecord] = useState(false);
   const [selectedPetId, setSelectedPetId] = useState('');
-  const [recTitle, setRecTitle] = useState('');
-  const [recType, setRecType] = useState('vaccine');
-  const [recDesc, setRecDesc] = useState('');
+  const [medDiagnosis, setMedDiagnosis] = useState('');
+  const [medPrescription, setMedPrescription] = useState('');
+  const [medNotes, setMedNotes] = useState('');
 
   // Add Vaccination State
   const [showAddVaccine, setShowAddVaccine] = useState(false);
   const [vacName, setVacName] = useState('');
-  const [vacGiven, setVacGiven] = useState('');
+  const [vacAdministered, setVacAdministered] = useState('');
   const [vacDue, setVacDue] = useState('');
   const [vacBatch, setVacBatch] = useState('');
 
   // Report Lost State
   const [showReportLost, setShowReportLost] = useState(false);
   const [lostCity, setLostCity] = useState('');
-  const [lostSeen, setLostSeen] = useState('');
+  const [lostLocation, setLostLocation] = useState('');
   const [lostReward, setLostReward] = useState('');
   const [lostDesc, setLostDesc] = useState('');
 
@@ -108,7 +111,6 @@ export default function Dashboard() {
     }
   }, [dbUser]);
 
-  // Handle Photo Encoding
   const handlePhotoUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -133,6 +135,9 @@ export default function Dashboard() {
         breed: petBreed,
         gender: petGender,
         dob: petDob,
+        weight: petWeight ? parseFloat(petWeight) : undefined,
+        color: petColor,
+        microchipId: petMicrochip,
         photo: petPhoto,
         emergencyContacts: petContacts.filter(c => c.name && c.phone)
       }, headers);
@@ -142,6 +147,9 @@ export default function Dashboard() {
         setShowAddPet(false);
         setPetName('');
         setPetBreed('');
+        setPetWeight('');
+        setPetColor('');
+        setPetMicrochip('');
         setPetPhoto('');
         setPetContacts([{ name: '', relation: '', phone: '' }]);
         fetchData();
@@ -161,16 +169,17 @@ export default function Dashboard() {
       const headers = await getHeaders();
       const res = await axios.post(`${API_URL}/api/medical`, {
         petId: selectedPetId,
-        title: recTitle,
-        type: recType,
-        description: recDesc
+        diagnosis: medDiagnosis,
+        prescription: medPrescription,
+        notes: medNotes
       }, headers);
 
       if (res.data.success) {
         setSuccess('Medical record added!');
         setShowAddRecord(false);
-        setRecTitle('');
-        setRecDesc('');
+        setMedDiagnosis('');
+        setMedPrescription('');
+        setMedNotes('');
         if (foundPet && selectedPetId === foundPet._id) {
           handleSearchPet();
         }
@@ -191,8 +200,8 @@ export default function Dashboard() {
       const res = await axios.post(`${API_URL}/api/vaccinations`, {
         petId: selectedPetId,
         vaccineName: vacName,
-        dateGiven: vacGiven,
-        nextDue: vacDue,
+        dateAdministered: vacAdministered,
+        nextDueDate: vacDue,
         batchNumber: vacBatch
       }, headers);
 
@@ -220,9 +229,9 @@ export default function Dashboard() {
       const headers = await getHeaders();
       const res = await axios.post(`${API_URL}/api/lost`, {
         petId: selectedPetId,
-        city: lostCity,
-        lastSeen: lostSeen,
-        reward: lostReward,
+        lastSeenCity: lostCity,
+        lastSeenLocation: lostLocation,
+        reward: lostReward ? parseFloat(lostReward) : 0,
         description: lostDesc
       }, headers);
 
@@ -230,7 +239,7 @@ export default function Dashboard() {
         setSuccess('Pet reported as missing.');
         setShowReportLost(false);
         setLostCity('');
-        setLostSeen('');
+        setLostLocation('');
         setLostReward('');
         setLostDesc('');
         fetchData();
@@ -241,7 +250,6 @@ export default function Dashboard() {
     }
   };
 
-  // Close Sighting / Recovery Case
   const handleCloseCase = async (petId) => {
     setError('');
     setSuccess('');
@@ -258,13 +266,12 @@ export default function Dashboard() {
     }
   };
 
-  // Vet search for pet
+  // Vet search
   const handleSearchPet = async () => {
     if (!searchPetQuery) return;
     setError('');
     try {
       const headers = await getHeaders();
-      // Search via public lost/found grid route using name
       const res = await axios.get(`${API_URL}/api/lost`, {
         params: { search: searchPetQuery }
       });
@@ -273,7 +280,6 @@ export default function Dashboard() {
         setFoundPet(found);
         setSelectedPetId(found._id);
         
-        // Fetch its medical details
         const medRes = await axios.get(`${API_URL}/api/medical/${found._id}`, headers);
         if (medRes.data.success) {
           setPetMedicalHistory(medRes.data.records);
@@ -288,11 +294,21 @@ export default function Dashboard() {
     }
   };
 
-  // Admin update role
+  // Admin role sync
   const handleUpdateRole = async (userId, role) => {
     try {
       const headers = await getHeaders();
       await axios.put(`${API_URL}/api/admin/role`, { userId, role }, headers);
+      fetchData();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const markNotificationAsRead = async (id) => {
+    try {
+      const headers = await getHeaders();
+      await axios.put(`${API_URL}/api/notifications/${id}/read`, {}, headers);
       fetchData();
     } catch (err) {
       console.error(err);
@@ -322,7 +338,6 @@ export default function Dashboard() {
 
       <main className="flex-grow max-w-7xl w-full mx-auto px-6 lg:px-12 py-12 flex flex-col gap-8">
         
-        {/* Top Header Card */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#141414] pb-6">
           <div className="flex flex-col gap-1">
             <span className="text-[10px] font-mono text-secondary uppercase tracking-widest">
@@ -353,12 +368,11 @@ export default function Dashboard() {
         )}
 
         {/* ============================================================== */}
-        {/* OWNER DASHBOARD */}
+        {/* OWNER VIEW */}
         {/* ============================================================== */}
         {dbUser?.role === 'owner' && (
           <div className="flex flex-col gap-6">
             
-            {/* Owner Tab Navigation */}
             <div className="flex gap-4 border-b border-[#141414] text-xs font-semibold uppercase tracking-wider text-secondary">
               <button 
                 onClick={() => setActiveTab('pets')}
@@ -370,14 +384,12 @@ export default function Dashboard() {
                 onClick={() => setActiveTab('alerts')}
                 className={`pb-3 ${activeTab === 'alerts' ? 'text-white border-b border-white' : ''}`}
               >
-                Scan Notifications ({notifications.filter(n => !n.read).length})
+                Scan Notifications ({notifications.filter(n => n.status === 'unread').length})
               </button>
             </div>
 
             {activeTab === 'pets' && (
               <div className="flex flex-col gap-6">
-                
-                {/* Actions Row */}
                 <div className="flex justify-between items-center">
                   <h3 className="font-heading font-bold text-lg text-white">Registered Digital Keys</h3>
                   <button 
@@ -388,7 +400,6 @@ export default function Dashboard() {
                   </button>
                 </div>
 
-                {/* Grid */}
                 {pets.length === 0 ? (
                   <div className="text-center py-20 text-neutral-600 font-mono text-xs border border-dashed border-border rounded-xl">
                     No keys registered. Register a pet to generate a smart recovery tag.
@@ -417,6 +428,9 @@ export default function Dashboard() {
                               </span>
                             </div>
                             <p className="text-secondary text-xs">{pet.breed || pet.species}</p>
+                            {pet.microchipId && (
+                              <p className="text-[10px] font-mono text-neutral-500 mt-1">Microchip: {pet.microchipId}</p>
+                            )}
                           </div>
 
                           <div className="flex items-center gap-3 mt-4">
@@ -470,20 +484,32 @@ export default function Dashboard() {
                     {notifications.map((n) => (
                       <div 
                         key={n._id}
-                        className="bg-surface border border-border rounded-xl p-4 flex justify-between items-center text-xs"
+                        className={`border rounded-xl p-4 flex justify-between items-center text-xs ${
+                          n.status === 'unread' ? 'bg-surface border-white/20' : 'bg-black border-border'
+                        }`}
                       >
                         <div className="flex flex-col gap-1">
                           <p className="font-semibold text-white">{n.title}</p>
                           <p className="text-secondary">{n.message}</p>
                           {n.metadata?.city && (
                             <span className="text-[10px] text-neutral-500 font-mono">
-                              Location: {n.metadata.city}, {n.metadata.country || ''} ({n.metadata.device || 'Web'})
+                              Location: {n.metadata.city}
                             </span>
                           )}
                         </div>
-                        <span className="text-[10px] font-mono text-secondary">
-                          {new Date(n.createdAt).toLocaleDateString()}
-                        </span>
+                        <div className="flex items-center gap-4">
+                          <span className="text-[10px] font-mono text-neutral-500">
+                            {new Date(n.createdAt).toLocaleDateString()}
+                          </span>
+                          {n.status === 'unread' && (
+                            <button 
+                              onClick={() => markNotificationAsRead(n._id)}
+                              className="text-[10px] font-bold text-white underline underline-offset-2"
+                            >
+                              Mark Read
+                            </button>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -494,7 +520,7 @@ export default function Dashboard() {
         )}
 
         {/* ============================================================== */}
-        {/* VET DASHBOARD */}
+        {/* VET VIEW */}
         {/* ============================================================== */}
         {dbUser?.role === 'vet' && (
           <div className="flex flex-col gap-6">
@@ -503,7 +529,7 @@ export default function Dashboard() {
             <div className="flex gap-4">
               <input 
                 type="text"
-                placeholder="Search Pet by Name/Slug..."
+                placeholder="Search Pet by Name..."
                 value={searchPetQuery}
                 onChange={(e) => setSearchPetQuery(e.target.value)}
                 className="bg-black border border-border rounded-lg h-11 px-4 text-white focus:outline-none focus:border-neutral-500 font-medium flex-grow text-sm"
@@ -519,7 +545,6 @@ export default function Dashboard() {
             {foundPet && (
               <div className="bg-surface border border-border rounded-2xl p-6 flex flex-col gap-6 mt-4">
                 
-                {/* Pet Identity info */}
                 <div className="flex justify-between items-center pb-4 border-b border-[#141414]">
                   <div>
                     <h4 className="font-heading font-black text-2xl text-white">{foundPet.name}</h4>
@@ -547,7 +572,6 @@ export default function Dashboard() {
                   </div>
                 </div>
 
-                {/* Medical Records Table list */}
                 <div className="flex flex-col gap-3">
                   <h5 className="text-xs uppercase tracking-wider text-secondary font-bold">Medical History Log</h5>
                   {petMedicalHistory.length === 0 ? (
@@ -555,12 +579,19 @@ export default function Dashboard() {
                   ) : (
                     <div className="flex flex-col gap-3">
                       {petMedicalHistory.map((m) => (
-                        <div key={m._id} className="bg-black border border-border p-4 rounded-xl text-xs flex flex-col gap-1">
-                          <div className="flex justify-between font-semibold">
-                            <span className="text-white">{m.title}</span>
-                            <span className="text-secondary uppercase tracking-wider font-bold text-[9px]">{m.type}</span>
+                        <div key={m._id} className="bg-black border border-border p-4 rounded-xl text-xs flex flex-col gap-2">
+                          <div className="flex justify-between font-semibold border-b border-border pb-2">
+                            <span className="text-white">Diagnosis: {m.diagnosis}</span>
+                            <span className="text-secondary font-mono text-[9px]">
+                              {new Date(m.createdAt).toLocaleDateString()}
+                            </span>
                           </div>
-                          <p className="text-neutral-400 mt-1">{m.description}</p>
+                          {m.prescription && (
+                            <p className="text-neutral-300"><strong className="text-secondary font-semibold">Prescription:</strong> {m.prescription}</p>
+                          )}
+                          {m.notes && (
+                            <p className="text-neutral-400 mt-1"><strong className="text-secondary font-semibold">Notes:</strong> {m.notes}</p>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -573,7 +604,7 @@ export default function Dashboard() {
         )}
 
         {/* ============================================================== */}
-        {/* SHELTER DASHBOARD */}
+        {/* SHELTER VIEW */}
         {/* ============================================================== */}
         {dbUser?.role === 'shelter' && (
           <div className="flex flex-col gap-6">
@@ -595,12 +626,10 @@ export default function Dashboard() {
         )}
 
         {/* ============================================================== */}
-        {/* ADMIN DASHBOARD */}
+        {/* ADMIN VIEW */}
         {/* ============================================================== */}
         {dbUser?.role === 'admin' && (
           <div className="flex flex-col gap-8">
-            
-            {/* Analytics Widgets */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
               <div className="bg-surface border border-border p-5 rounded-2xl flex flex-col gap-1">
                 <span className="text-[10px] text-secondary font-mono uppercase tracking-wider font-bold">Total Accounts</span>
@@ -620,7 +649,6 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* Users lists table */}
             <div className="flex flex-col gap-4 border-t border-[#141414] pt-6">
               <h3 className="font-heading font-bold text-lg text-white">Platform Users Control Table</h3>
               <div className="bg-surface border border-border rounded-2xl overflow-hidden overflow-x-auto text-sm text-left">
@@ -657,7 +685,6 @@ export default function Dashboard() {
                 </table>
               </div>
             </div>
-
           </div>
         )}
 
@@ -675,7 +702,7 @@ export default function Dashboard() {
                   <label className="text-secondary text-xs uppercase tracking-wider font-semibold">Pet Name</label>
                   <input 
                     type="text" required value={petName} onChange={(e) => setPetName(e.target.value)}
-                    className="bg-black border border-border rounded-lg h-10 px-4 text-white focus:outline-none focus:border-neutral-500"
+                    className="bg-black border border-border rounded-lg h-10 px-4 text-white focus:outline-none"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
@@ -683,7 +710,7 @@ export default function Dashboard() {
                     <label className="text-secondary text-xs uppercase tracking-wider font-semibold">Species</label>
                     <select 
                       value={petSpecies} onChange={(e) => setPetSpecies(e.target.value)}
-                      className="bg-black border border-border rounded-lg h-10 px-3 text-white focus:outline-none focus:border-neutral-500"
+                      className="bg-black border border-border rounded-lg h-10 px-3 text-white focus:outline-none"
                     >
                       <option value="dog">Dog</option>
                       <option value="cat">Cat</option>
@@ -694,7 +721,30 @@ export default function Dashboard() {
                     <label className="text-secondary text-xs uppercase tracking-wider font-semibold">Breed</label>
                     <input 
                       type="text" required value={petBreed} onChange={(e) => setPetBreed(e.target.value)}
-                      className="bg-black border border-border rounded-lg h-10 px-4 text-white focus:outline-none focus:border-neutral-500"
+                      className="bg-black border border-border rounded-lg h-10 px-4 text-white focus:outline-none"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-secondary text-xs uppercase tracking-wider font-semibold">Weight (kg)</label>
+                    <input 
+                      type="number" step="0.1" value={petWeight} onChange={(e) => setPetWeight(e.target.value)}
+                      className="bg-black border border-border rounded-lg h-10 px-4 text-white focus:outline-none font-mono"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-secondary text-xs uppercase tracking-wider font-semibold">Color</label>
+                    <input 
+                      type="text" value={petColor} onChange={(e) => setPetColor(e.target.value)}
+                      className="bg-black border border-border rounded-lg h-10 px-4 text-white focus:outline-none"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-secondary text-xs uppercase tracking-wider font-semibold">Microchip ID</label>
+                    <input 
+                      type="text" value={petMicrochip} onChange={(e) => setPetMicrochip(e.target.value)}
+                      className="bg-black border border-border rounded-lg h-10 px-4 text-white focus:outline-none font-mono"
                     />
                   </div>
                 </div>
@@ -703,7 +753,7 @@ export default function Dashboard() {
                     <label className="text-secondary text-xs uppercase tracking-wider font-semibold">Gender</label>
                     <select 
                       value={petGender} onChange={(e) => setPetGender(e.target.value)}
-                      className="bg-black border border-border rounded-lg h-10 px-3 text-white focus:outline-none focus:border-neutral-500"
+                      className="bg-black border border-border rounded-lg h-10 px-3 text-white focus:outline-none"
                     >
                       <option value="male">Male</option>
                       <option value="female">Female</option>
@@ -713,7 +763,7 @@ export default function Dashboard() {
                     <label className="text-secondary text-xs uppercase tracking-wider font-semibold">Date of Birth</label>
                     <input 
                       type="date" required value={petDob} onChange={(e) => setPetDob(e.target.value)}
-                      className="bg-black border border-border rounded-lg h-10 px-4 text-white focus:outline-none focus:border-neutral-500 font-mono"
+                      className="bg-black border border-border rounded-lg h-10 px-4 text-white focus:outline-none font-mono text-xs"
                     />
                   </div>
                 </div>
@@ -721,7 +771,7 @@ export default function Dashboard() {
                   <label className="text-secondary text-xs uppercase tracking-wider font-semibold">Photo</label>
                   <input 
                     type="file" accept="image/*" onChange={handlePhotoUpload}
-                    className="bg-black border border-border rounded-lg h-10 p-1.5 text-white focus:outline-none focus:border-neutral-500 text-xs font-mono"
+                    className="bg-black border border-border rounded-lg h-10 p-1.5 text-white focus:outline-none text-xs font-mono"
                   />
                 </div>
 
@@ -736,7 +786,7 @@ export default function Dashboard() {
                           updated[idx].name = e.target.value;
                           setPetContacts(updated);
                         }}
-                        className="bg-black border border-border rounded-lg h-9 px-3 text-xs w-1/3 text-white focus:outline-none focus:border-neutral-500"
+                        className="bg-black border border-border rounded-lg h-9 px-3 text-xs w-1/3 text-white focus:outline-none"
                       />
                       <input 
                         type="text" placeholder="Relation"
@@ -745,7 +795,7 @@ export default function Dashboard() {
                           updated[idx].relation = e.target.value;
                           setPetContacts(updated);
                         }}
-                        className="bg-black border border-border rounded-lg h-9 px-3 text-xs w-1/3 text-white focus:outline-none focus:border-neutral-500"
+                        className="bg-black border border-border rounded-lg h-9 px-3 text-xs w-1/3 text-white focus:outline-none"
                       />
                       <input 
                         type="tel" placeholder="Phone" required
@@ -754,7 +804,7 @@ export default function Dashboard() {
                           updated[idx].phone = e.target.value;
                           setPetContacts(updated);
                         }}
-                        className="bg-black border border-border rounded-lg h-9 px-3 text-xs w-1/3 text-white focus:outline-none focus:border-neutral-500 font-mono"
+                        className="bg-black border border-border rounded-lg h-9 px-3 text-xs w-1/3 text-white focus:outline-none font-mono"
                       />
                     </div>
                   ))}
@@ -793,30 +843,23 @@ export default function Dashboard() {
               <h3 className="font-heading font-[900] text-xl tracking-tight text-white">Append Medical Log</h3>
               <form onSubmit={handleAddRecord} className="flex flex-col gap-4">
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-secondary text-xs uppercase tracking-wider font-semibold">Title</label>
+                  <label className="text-secondary text-xs uppercase tracking-wider font-semibold">Diagnosis</label>
                   <input 
-                    type="text" required value={recTitle} onChange={(e) => setRecTitle(e.target.value)}
+                    type="text" required value={medDiagnosis} onChange={(e) => setMedDiagnosis(e.target.value)}
                     className="bg-black border border-border rounded-lg h-10 px-4 text-white focus:outline-none"
                   />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-secondary text-xs uppercase tracking-wider font-semibold">Type</label>
-                  <select 
-                    value={recType} onChange={(e) => setRecType(e.target.value)}
-                    className="bg-black border border-border rounded-lg h-10 px-3 text-white focus:outline-none"
-                  >
-                    <option value="vaccine">Vaccination</option>
-                    <option value="surgery">Surgery</option>
-                    <option value="allergy">Allergy</option>
-                    <option value="disease">Disease</option>
-                    <option value="prescription">Prescription</option>
-                    <option value="report">Report</option>
-                  </select>
+                  <label className="text-secondary text-xs uppercase tracking-wider font-semibold">Prescription</label>
+                  <input 
+                    type="text" value={medPrescription} onChange={(e) => setMedPrescription(e.target.value)}
+                    className="bg-black border border-border rounded-lg h-10 px-4 text-white focus:outline-none"
+                  />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-secondary text-xs uppercase tracking-wider font-semibold">Description</label>
+                  <label className="text-secondary text-xs uppercase tracking-wider font-semibold">Notes</label>
                   <textarea 
-                    rows="3" required value={recDesc} onChange={(e) => setRecDesc(e.target.value)}
+                    rows="3" required value={medNotes} onChange={(e) => setMedNotes(e.target.value)}
                     className="bg-black border border-border rounded-lg p-4 text-white focus:outline-none resize-none"
                   />
                 </div>
@@ -854,14 +897,14 @@ export default function Dashboard() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-secondary text-xs uppercase tracking-wider font-semibold">Date Given</label>
+                    <label className="text-secondary text-xs uppercase tracking-wider font-semibold">Date Administered</label>
                     <input 
-                      type="date" required value={vacGiven} onChange={(e) => setVacGiven(e.target.value)}
+                      type="date" required value={vacAdministered} onChange={(e) => setVacAdministered(e.target.value)}
                       className="bg-black border border-border rounded-lg h-10 px-3 text-white focus:outline-none font-mono text-xs"
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-secondary text-xs uppercase tracking-wider font-semibold">Next Due</label>
+                    <label className="text-secondary text-xs uppercase tracking-wider font-semibold">Next Due Date</label>
                     <input 
                       type="date" value={vacDue} onChange={(e) => setVacDue(e.target.value)}
                       className="bg-black border border-border rounded-lg h-10 px-3 text-white focus:outline-none font-mono text-xs"
@@ -909,9 +952,9 @@ export default function Dashboard() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-secondary text-xs uppercase tracking-wider font-semibold">Last Seen Sighting</label>
+                    <label className="text-secondary text-xs uppercase tracking-wider font-semibold">Last Seen Location</label>
                     <input 
-                      type="text" value={lostSeen} onChange={(e) => setLostSeen(e.target.value)}
+                      type="text" value={lostLocation} onChange={(e) => setLostLocation(e.target.value)}
                       placeholder="e.g. Central Park"
                       className="bg-black border border-border rounded-lg h-10 px-4 text-white focus:outline-none"
                     />

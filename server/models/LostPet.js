@@ -11,13 +11,6 @@ const lostPetSchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
-    lastSeen: {
-      type: String,
-    },
-    city: {
-      type: String,
-      required: true,
-    },
     reward: {
       type: Number,
       default: 0,
@@ -25,19 +18,23 @@ const lostPetSchema = new mongoose.Schema(
     description: {
       type: String,
     },
+    lastSeenCity: {
+      type: String,
+      required: true,
+    },
+    lastSeenLocation: {
+      type: String,
+    },
+    latitude: {
+      type: Number,
+    },
+    longitude: {
+      type: Number,
+    },
     status: {
       type: String,
-      enum: ['missing', 'found'],
+      enum: ['missing', 'found', 'closed'],
       default: 'missing',
-    },
-    finderName: {
-      type: String,
-    },
-    finderPhone: {
-      type: String,
-    },
-    finderMessage: {
-      type: String,
     },
     foundAt: {
       type: Date,

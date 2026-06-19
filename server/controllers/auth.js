@@ -1,4 +1,4 @@
-import { User } from '../models/User.js';
+import { User } from '../models/index.js';
 import admin from '../config/firebase.js';
 
 const decodeTokenPayload = (token) => {
@@ -39,25 +39,23 @@ export const syncUser = async (req, res) => {
     }
 
     const firebaseUID = decoded.uid || decoded.sub;
-    const { name, email, photo, phone, role } = req.body;
+    const { name, email, profilePicture, phone, role } = req.body;
 
     let user = await User.findOne({ firebaseUID });
 
     if (user) {
-      // Update existing user
       user.name = name || user.name;
-      user.photo = photo || user.photo;
+      user.profilePicture = profilePicture || user.profilePicture || decoded.picture || '';
       user.phone = phone || user.phone;
       if (role) user.role = role;
       await user.save();
     } else {
-      // Create new user
       user = await User.create({
         firebaseUID,
         name: name || decoded.name || email.split('@')[0],
         email: email || decoded.email,
         phone: phone || '',
-        photo: photo || decoded.picture || '',
+        profilePicture: profilePicture || decoded.picture || '',
         role: role || 'owner',
         verified: false
       });

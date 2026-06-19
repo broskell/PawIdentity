@@ -11,11 +11,11 @@ const vaccinationSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    dateGiven: {
+    dateAdministered: {
       type: Date,
       required: true,
     },
-    nextDue: {
+    nextDueDate: {
       type: Date,
     },
     batchNumber: {

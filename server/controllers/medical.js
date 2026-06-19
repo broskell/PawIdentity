@@ -4,8 +4,8 @@ import { uploadToCloudinary } from '../services/cloudinary.js';
 // Medical Records
 export const createMedicalRecord = async (req, res) => {
   try {
-    const { petId, title, type, description, attachments } = req.body;
-    const addedBy = req.user._id;
+    const { petId, diagnosis, prescription, notes, attachments } = req.body;
+    const veterinarian = req.user._id;
 
     const pet = await Pet.findById(petId);
     if (!pet) {
@@ -26,11 +26,11 @@ export const createMedicalRecord = async (req, res) => {
 
     const record = await MedicalRecord.create({
       pet: petId,
-      title,
-      type,
-      description,
-      attachments: attachmentUrls,
-      addedBy
+      veterinarian,
+      diagnosis,
+      prescription,
+      notes,
+      attachments: attachmentUrls
     });
 
     res.status(201).json({
@@ -47,7 +47,7 @@ export const createMedicalRecord = async (req, res) => {
 export const getMedicalRecords = async (req, res) => {
   try {
     const records = await MedicalRecord.find({ pet: req.params.petId })
-      .populate('addedBy', 'name role')
+      .populate('veterinarian', 'name role')
       .sort({ createdAt: -1 });
 
     res.status(200).json({
@@ -63,7 +63,7 @@ export const getMedicalRecords = async (req, res) => {
 // Vaccinations
 export const createVaccination = async (req, res) => {
   try {
-    const { petId, vaccineName, dateGiven, nextDue, batchNumber } = req.body;
+    const { petId, vaccineName, dateAdministered, nextDueDate, batchNumber } = req.body;
 
     const pet = await Pet.findById(petId);
     if (!pet) {
@@ -73,8 +73,8 @@ export const createVaccination = async (req, res) => {
     const vaccination = await Vaccination.create({
       pet: petId,
       vaccineName,
-      dateGiven,
-      nextDue,
+      dateAdministered,
+      nextDueDate,
       batchNumber,
       verified: req.user.role === 'vet' || req.user.role === 'admin'
     });
@@ -95,7 +95,7 @@ export const createVaccination = async (req, res) => {
 
 export const getVaccinations = async (req, res) => {
   try {
-    const vaccinations = await Vaccination.find({ pet: req.params.petId }).sort({ dateGiven: -1 });
+    const vaccinations = await Vaccination.find({ pet: req.params.petId }).sort({ dateAdministered: -1 });
     res.status(200).json({
       success: true,
       vaccinations

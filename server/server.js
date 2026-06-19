@@ -36,7 +36,16 @@ app.use('/api/scans', scanRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/admin', adminRoutes);
 
-// Health Check Route
+// Root route (GET /)
+app.get('/', (req, res) => {
+  res.status(200).json({
+    success: true,
+    name: 'PawIdentity API',
+    status: 'Running'
+  });
+});
+
+// Health Check Route (GET /api/health)
 app.get('/api/health', (req, res) => {
   res.status(200).json({
     success: true,

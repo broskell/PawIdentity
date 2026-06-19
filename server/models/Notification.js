@@ -17,15 +17,13 @@ const notificationSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ['scan', 'vaccine', 'lost', 'found', 'system'],
-      required: true,
+      enum: ['scan', 'vaccine', 'lost', 'general'],
+      default: 'general',
     },
-    link: {
+    status: {
       type: String,
-    },
-    read: {
-      type: Boolean,
-      default: false,
+      enum: ['read', 'unread'],
+      default: 'unread',
     },
     metadata: {
       type: mongoose.Schema.Types.Mixed,

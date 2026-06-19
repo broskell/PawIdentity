@@ -2,13 +2,16 @@ import { Link } from 'react-router-dom';
 
 export default function Navbar() {
   return (
-    <nav className="sticky top-0 z-50 h-[72px] bg-black border-b border-[#141414] px-6 lg:px-12 flex items-center justify-between font-body select-none">
+    <nav className="sticky top-0 z-50 h-[72px] bg-black border-b border-border px-6 lg:px-12 flex items-center justify-between font-body select-none">
       {/* Left Logo */}
       <Link 
         to="/" 
-        className="font-heading font-black tracking-tighter text-white text-xl"
+        className="flex items-center gap-3 font-heading font-black tracking-tighter text-white text-xl"
       >
-        PAWIDENTITY
+        <div className="w-8 h-8 bg-white text-black flex items-center justify-center rounded font-mono font-black text-lg select-none">
+          P
+        </div>
+        <span>PawIdentity</span>
       </Link>
 
       {/* Center Links */}

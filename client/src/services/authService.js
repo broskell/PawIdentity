@@ -9,7 +9,7 @@ export const syncUserWithBackend = async (firebaseUser, role = 'owner') => {
     {
       name: firebaseUser.displayName || firebaseUser.email.split('@')[0],
       email: firebaseUser.email,
-      photo: firebaseUser.photoURL || '',
+      profilePicture: firebaseUser.photoURL || '',
       phone: firebaseUser.phoneNumber || '',
       role: role
     },

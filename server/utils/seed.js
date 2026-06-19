@@ -7,7 +7,7 @@ dotenv.config();
 const seed = async () => {
   try {
     await mongoose.connect(process.env.MONGODB_URI);
-    console.log('Connected to MongoDB to seed dummy data...');
+    console.log('Connected to MongoDB to seed updated dummy data...');
 
     await User.deleteMany({});
     await Pet.deleteMany({});
@@ -24,7 +24,7 @@ const seed = async () => {
       name: 'Kellampalli Saathvik',
       email: 'saathvik@gmail.com',
       phone: '+18598881260',
-      photo: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=150',
+      profilePicture: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=150',
       role: 'owner',
       verified: true
     });
@@ -34,7 +34,7 @@ const seed = async () => {
       name: 'Dr. Clara Sterling',
       email: 'clara.vet@pawidentity.com',
       phone: '+15559876543',
-      photo: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=150',
+      profilePicture: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=150',
       role: 'vet',
       verified: true
     });
@@ -44,7 +44,7 @@ const seed = async () => {
       name: 'Downtown Animal Shelter',
       email: 'shelter@pawidentity.com',
       phone: '+15555551234',
-      photo: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&q=80&w=150',
+      profilePicture: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&q=80&w=150',
       role: 'shelter',
       verified: true
     });
@@ -59,9 +59,11 @@ const seed = async () => {
       breed: 'Golden Retriever',
       gender: 'male',
       dob: new Date('2022-04-12'),
-      photo: '',
+      weight: 32,
+      color: 'Golden',
+      microchipId: 'MC-9821-XP',
+      photo: '', // left empty for local fallback
       status: 'missing',
-      slug: 'bruno',
       isVaccinated: true,
       emergencyContacts: [
         { name: 'Srinivas', relation: 'Guardian', phone: '+18598881260' }
@@ -81,16 +83,20 @@ const seed = async () => {
       lastScannedAt: new Date()
     });
 
-    console.log('Dummy QRTag created.');
+    // Link tag to pet
+    pet.qrTag = qrTag._id;
+    await pet.save();
+
+    console.log('Dummy QRTag created and linked to pet.');
 
     // 4. Create LostPet record
     await LostPet.create({
       pet: pet._id,
       missingSince: new Date('2026-06-18'),
-      lastSeen: 'Central Park Sighting',
-      city: 'Hyderabad',
       reward: 5000,
       description: 'Very friendly Golden Retriever. Answers to Bruno. Has a black collar with the PawIdentity smart QR tag.',
+      lastSeenCity: 'Hyderabad',
+      lastSeenLocation: 'Central Park Sighting',
       status: 'missing'
     });
 
@@ -99,11 +105,11 @@ const seed = async () => {
     // 5. Create Medical Record
     await MedicalRecord.create({
       pet: pet._id,
-      title: 'De-worming Treatment',
-      type: 'prescription',
-      description: 'Prescribed 1 tablet of Milbemax de-wormer.',
-      attachments: [],
-      addedBy: vet._id
+      veterinarian: vet._id,
+      diagnosis: 'Mild seasonal allergies',
+      prescription: 'Cetirizine 10mg once daily',
+      notes: 'Check back in two weeks if itching continues.',
+      attachments: []
     });
 
     console.log('Dummy Medical Record created.');
@@ -112,8 +118,8 @@ const seed = async () => {
     await Vaccination.create({
       pet: pet._id,
       vaccineName: 'Rabies Booster',
-      dateGiven: new Date('2026-01-10'),
-      nextDue: new Date('2027-01-10'),
+      dateAdministered: new Date('2026-01-10'),
+      nextDueDate: new Date('2027-01-10'),
       batchNumber: 'RAB-7789A',
       verified: true
     });
@@ -126,7 +132,7 @@ const seed = async () => {
       title: 'QR Smart Tag Scanned',
       message: "Bruno's tag was scanned using a mobile browser.",
       type: 'scan',
-      link: '/dashboard',
+      status: 'unread',
       metadata: {
         city: 'Hyderabad',
         country: 'India',
@@ -136,7 +142,7 @@ const seed = async () => {
 
     console.log('Dummy Notification created.');
 
-    console.log('Database seeded successfully with premium dummy data!');
+    console.log('Database seeded successfully with updated dummy data!');
     process.exit(0);
   } catch (error) {
     console.error('Error seeding data:', error);

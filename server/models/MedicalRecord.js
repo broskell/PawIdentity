@@ -7,16 +7,19 @@ const medicalRecordSchema = new mongoose.Schema(
       ref: 'Pet',
       required: true,
     },
-    title: {
+    veterinarian: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+    diagnosis: {
       type: String,
       required: true,
     },
-    type: {
+    prescription: {
       type: String,
-      enum: ['vaccine', 'surgery', 'allergy', 'disease', 'prescription', 'report'],
-      required: true,
     },
-    description: {
+    notes: {
       type: String,
     },
     attachments: [
@@ -24,11 +27,6 @@ const medicalRecordSchema = new mongoose.Schema(
         type: String,
       },
     ],
-    addedBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: true,
-    },
   },
   {
     timestamps: true,

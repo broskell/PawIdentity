@@ -2,11 +2,6 @@ import mongoose from 'mongoose';
 
 const petSchema = new mongoose.Schema(
   {
-    owner: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: true,
-    },
     name: {
       type: String,
       required: true,
@@ -25,23 +20,35 @@ const petSchema = new mongoose.Schema(
     dob: {
       type: Date,
     },
+    weight: {
+      type: Number, // in kg
+    },
+    color: {
+      type: String,
+    },
+    microchipId: {
+      type: String,
+    },
     photo: {
       type: String,
     },
-    status: {
-      type: String,
-      enum: ['active', 'missing', 'found'],
-      default: 'active',
-    },
-    slug: {
-      type: String,
+    owner: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
       required: true,
-      unique: true,
-      index: true,
+    },
+    qrTag: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'QRTag',
     },
     isVaccinated: {
       type: Boolean,
       default: false,
+    },
+    status: {
+      type: String,
+      enum: ['active', 'missing'],
+      default: 'active',
     },
     emergencyContacts: [
       {

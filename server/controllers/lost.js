@@ -3,7 +3,7 @@ import { sendSMS } from '../services/twilio.js';
 
 export const reportLost = async (req, res) => {
   try {
-    const { petId, missingSince, lastSeen, city, reward, description } = req.body;
+    const { petId, missingSince, lastSeenCity, lastSeenLocation, reward, description } = req.body;
 
     const pet = await Pet.findOne({ _id: petId, owner: req.user._id });
     if (!pet) {
@@ -16,8 +16,8 @@ export const reportLost = async (req, res) => {
     const lostPet = await LostPet.create({
       pet: petId,
       missingSince: missingSince || new Date(),
-      lastSeen,
-      city,
+      lastSeenCity,
+      lastSeenLocation,
       reward: reward || 0,
       description,
       status: 'missing'
@@ -28,6 +28,7 @@ export const reportLost = async (req, res) => {
       title: 'Alert: Pet marked as Missing',
       message: `${pet.name} has been marked as missing. A public record is created.`,
       type: 'lost',
+      status: 'unread',
       link: `/dashboard`
     });
 
@@ -44,11 +45,11 @@ export const reportLost = async (req, res) => {
 
 export const getLostPets = async (req, res) => {
   try {
-    const { city, breed, species, search } = req.query;
+    const { lastSeenCity, breed, species, search } = req.query;
     
     const query = { status: 'missing' };
     
-    if (city) query.city = { $regex: city, $options: 'i' };
+    if (lastSeenCity) query.lastSeenCity = { $regex: lastSeenCity, $options: 'i' };
 
     let petFilter = {};
     if (breed) petFilter.breed = { $regex: breed, $options: 'i' };
@@ -85,23 +86,21 @@ export const reportFoundByFinder = async (req, res) => {
     }
 
     lostPet.status = 'found';
-    lostPet.finderName = finderName;
-    lostPet.finderPhone = finderPhone;
-    lostPet.finderMessage = finderMessage;
     lostPet.foundAt = new Date();
     await lostPet.save();
 
     const pet = lostPet.pet;
-    pet.status = 'found';
+    pet.status = 'active'; // Returns to active status upon recovery
     await pet.save();
 
     const owner = await User.findById(pet.owner);
     if (owner) {
       await Notification.create({
         user: owner._id,
-        title: 'Pet Found Report Received',
-        message: `Someone reported they found ${pet.name}! Contact details: ${finderName} (${finderPhone}). Message: "${finderMessage}"`,
-        type: 'found',
+        title: 'Pet Sighting / Recovery Sourced',
+        message: `Someone reported they found ${pet.name}! Sighting Details: Contact ${finderName} at ${finderPhone}. Message: "${finderMessage}"`,
+        type: 'lost',
+        status: 'unread',
         link: '/dashboard',
         metadata: { finderPhone, finderName }
       });
@@ -134,8 +133,9 @@ export const closeLostCase = async (req, res) => {
     pet.status = 'active';
     await pet.save();
 
-    const lostPet = await LostPet.findOne({ pet: petId, status: 'found' });
+    const lostPet = await LostPet.findOne({ pet: petId, status: 'missing' });
     if (lostPet) {
+      lostPet.status = 'closed';
       lostPet.closedAt = new Date();
       await lostPet.save();
     }

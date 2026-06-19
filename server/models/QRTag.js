@@ -2,11 +2,6 @@ import mongoose from 'mongoose';
 
 const qrTagSchema = new mongoose.Schema(
   {
-    pet: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Pet',
-      required: true,
-    },
     tagId: {
       type: String,
       required: true,
@@ -19,13 +14,9 @@ const qrTagSchema = new mongoose.Schema(
       unique: true,
       index: true,
     },
-    qrImage: {
-      type: String,
-    },
-    status: {
-      type: String,
-      enum: ['active', 'inactive'],
-      default: 'active',
+    pet: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Pet',
     },
     scanCount: {
       type: Number,
@@ -33,6 +24,11 @@ const qrTagSchema = new mongoose.Schema(
     },
     lastScannedAt: {
       type: Date,
+    },
+    status: {
+      type: String,
+      enum: ['active', 'inactive'],
+      default: 'active',
     },
   },
   {

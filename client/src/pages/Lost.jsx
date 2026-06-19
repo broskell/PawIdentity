@@ -7,7 +7,7 @@ import Footer from '../components/landing/Footer';
 export default function Lost() {
   const [lostPets, setLostPets] = useState([]);
   const [search, setSearch] = useState('');
-  const [city, setCity] = useState('');
+  const [lastSeenCity, setLastSeenCity] = useState('');
   const [breed, setBreed] = useState('');
   const [species, setSpecies] = useState('');
   const [loading, setLoading] = useState(true);
@@ -18,7 +18,7 @@ export default function Lost() {
     setLoading(true);
     try {
       const res = await axios.get(`${API_URL}/api/lost`, {
-        params: { search, city, breed, species }
+        params: { search, lastSeenCity, breed, species }
       });
       if (res.data.success) {
         setLostPets(res.data.lostPets);
@@ -32,14 +32,13 @@ export default function Lost() {
 
   useEffect(() => {
     fetchLostPets();
-  }, [search, city, breed, species]);
+  }, [search, lastSeenCity, breed, species]);
 
   return (
     <div className="flex flex-col min-h-screen bg-black text-white font-body select-none">
       <Navbar />
 
       <main className="flex-grow max-w-7xl w-full mx-auto px-6 lg:px-12 py-12 flex flex-col gap-10">
-        {/* Top Header */}
         <div className="flex flex-col gap-2">
           <span className="text-xs font-mono uppercase text-neutral-600 font-bold tracking-widest">
             Missing Registry
@@ -52,7 +51,6 @@ export default function Lost() {
           </p>
         </div>
 
-        {/* Filter Area (Monochrome boxes) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-surface border border-border p-4 rounded-xl text-sm">
           <input 
             type="text"
@@ -64,8 +62,8 @@ export default function Lost() {
           <input 
             type="text"
             placeholder="City..."
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
+            value={lastSeenCity}
+            onChange={(e) => setLastSeenCity(e.target.value)}
             className="bg-black border border-border rounded-lg h-10 px-4 text-white focus:outline-none focus:border-neutral-500 font-medium"
           />
           <input 
@@ -87,7 +85,6 @@ export default function Lost() {
           </select>
         </div>
 
-        {/* Grid List */}
         {loading ? (
           <div className="text-center py-20 text-secondary font-mono text-xs">
             Querying databases...
@@ -131,7 +128,7 @@ export default function Lost() {
                       Last Seen
                     </span>
                     <span className="font-medium text-white block">
-                      {record.city}
+                      {record.lastSeenCity}
                     </span>
                   </div>
                   {record.reward > 0 && (

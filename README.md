@@ -1,6 +1,6 @@
-# PawIdentity — One Scan Away From Home
+# PawIdentity — Every Pet Deserves An Identity.
 
-PawIdentity is a premium, minimal digital pet identity and recovery platform. Inspired by the design philosophies of MUJI, Apple Wallet, and Linear, PawIdentity provides a zero-friction, monochromatic interface for pet management and lost recovery telemetry.
+PawIdentity (also branded as **PawAadhar**) is a premium, minimal digital pet identity and recovery platform. Inspired by the design philosophies of MUJI, Apple Wallet, and Linear, PawIdentity provides a zero-friction, monochromatic interface for pet management and lost recovery telemetry.
 
 ---
 
@@ -51,14 +51,14 @@ graph TD
 
 ## 🗄️ Database Models
 
-1. **User**: Stores firebaseUID, name, email, phone, role (`owner`, `vet`, `shelter`, `admin`), and verification status.
-2. **Pet**: Stores owner reference, name, species, breed, gender, date of birth, photo, vaccination status, and emergency contacts list.
-3. **QRTag**: Logs pet reference, unique tagId, slug, generated QR image URL, scan count, and last scanned date.
-4. **MedicalRecord**: Stores pet reference, title, record type, text description, attachments, and the vet reference.
-5. **Vaccination**: Records pet reference, vaccine name, date given, next due date, batch number, and verification status.
-6. **LostPet**: Manages active missing listings, reward details, last seen description, and finder report fields.
-7. **ScanLog**: Captures latitude, longitude, city, country, device, browser, and scan timestamp.
-8. **Notification**: Links unread scan reports, vaccine renewals, and lost/found feeds to owner dashboards.
+1. **User**: Stores `name`, `email`, `firebaseUID`, `phone`, `profilePicture`, `role` (`owner`, `vet`, `shelter`, `admin`), `verified` status, and timestamps.
+2. **Pet**: Stores `name`, `species`, `breed`, `gender`, `dob`, `weight`, `color`, `microchipId`, `photo`, `owner` (ref User), `qrTag` (ref QRTag), `isVaccinated` status, `status` (`active`, `missing`), `emergencyContacts` list (name, relation, phone), and timestamps.
+3. **QRTag**: Logs `tagId` (e.g. `PID-2026-001`), `slug`, `pet` (ref Pet), `scanCount`, `lastScannedAt`, `status` (`active`, `inactive`), and timestamps.
+4. **MedicalRecord**: Stores `pet` (ref Pet), `veterinarian` (ref User or string), `diagnosis`, `prescription`, `notes`, `attachments` (urls array), and timestamps.
+5. **Vaccination**: Records `pet` (ref Pet), `vaccineName`, `dateAdministered`, `nextDueDate`, `batchNumber`, `verified`, and timestamps.
+6. **LostPet**: Manages active missing listings: `pet` (ref Pet), `missingSince`, `reward`, `description`, `lastSeenCity`, `lastSeenLocation`, `latitude`, `longitude`, `status` (`missing`, `found`, `closed`), `foundAt`, `closedAt`, and timestamps.
+7. **ScanLog**: Captures `pet` (ref Pet), `qrTag` (ref QRTag), `scannedAt`, `latitude`, `longitude`, `city`, `browser`, `device`, `ipAddress`, `ownerNotified`, and timestamps.
+8. **Notification**: Links notifications to users: `user` (ref User), `title`, `message`, `type` (`scan`, `vaccine`, `lost`, `general`), `status` (`read`, `unread`), `metadata`, and timestamps.
 
 ---
 

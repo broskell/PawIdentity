@@ -2,30 +2,41 @@ import { Link } from 'react-router-dom';
 
 export default function MissingSection() {
   return (
-    <section className="bg-black text-white px-6 py-28 select-none font-body border-t border-[#141414]">
-      <div className="max-w-4xl mx-auto text-center flex flex-col gap-10">
+    <section className="bg-black text-white py-32 border-t border-[#141414] select-none font-body w-full flex flex-col items-center justify-center">
+      <div className="w-full flex flex-col items-center gap-12 text-center px-6">
         
-        {/* HUGE TYPOGRAPHY */}
-        <h2 className="font-heading font-[900] text-neutral-800 text-[clamp(4.5rem,12vw,10rem)] leading-[0.8] tracking-[-0.05em]">
+        {/* HUGE MISSING */}
+        <h2 className="font-heading font-[900] text-white text-[clamp(5rem,15vw,12rem)] leading-[0.8] tracking-[-0.05em] uppercase">
           MISSING
         </h2>
 
-        <div className="flex flex-col items-center gap-2">
-          <h3 className="font-heading font-black text-3xl tracking-tight">BRUNO</h3>
-          <p className="text-secondary text-sm font-medium">
-            Golden Retriever &middot; Missing Since 18 Jun 2026 &middot; Reward ₹5,000
+        {/* Pet details */}
+        <div className="flex flex-col gap-3 items-center">
+          <h3 className="font-heading font-black text-4xl tracking-tighter">Bruno</h3>
+          <p className="text-secondary text-base font-mono">
+            Golden Retriever
           </p>
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 text-sm font-mono text-secondary mt-2">
+            <span>Missing Since: 18 Jun 2026</span>
+            <span>Reward: ₹5000</span>
+          </div>
         </div>
 
-        <div className="flex flex-col gap-4 items-center">
+        {/* Button */}
+        <div>
           <Link 
             to="/pet/bruno" 
-            className="bg-white text-black font-semibold h-11 px-8 flex items-center justify-center rounded-full hover:bg-neutral-200 transition-colors"
+            className="bg-white text-black font-black text-sm uppercase tracking-wider h-12 px-10 flex items-center justify-center rounded-full hover:bg-neutral-200 transition-colors"
           >
             REPORT FOUND
           </Link>
-          <p className="text-secondary text-xs max-w-sm leading-relaxed mt-2">
-            They are not just pets. They are family. A single scan can bring them home.
+        </div>
+
+        {/* Footer text */}
+        <div className="border-t border-[#262626] pt-8 mt-4 max-w-lg w-full">
+          <p className="text-secondary text-sm leading-relaxed">
+            They are not just pets. They are family.<br />
+            <span className="text-white font-medium">A single scan can bring them home.</span>
           </p>
         </div>
 

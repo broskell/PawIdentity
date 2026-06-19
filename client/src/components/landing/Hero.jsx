@@ -5,6 +5,11 @@ import brunoImg from '../../assets/bruno.png';
 export default function Hero() {
   return (
     <div className="min-h-screen bg-black flex flex-col items-center justify-center text-center px-6 py-20 select-none font-body gap-8">
+      {/* Tagline Badge */}
+      <div className="font-mono text-xs text-secondary uppercase tracking-[0.25em] bg-surface border border-border px-4 py-1.5 rounded-full select-none">
+        Every Pet Deserves An Identity.
+      </div>
+
       {/* Title */}
       <h1 className="font-heading font-[900] text-white text-[clamp(4.5rem,9vw,8rem)] leading-[0.9] tracking-[-0.05em] max-w-5xl">
         One Scan Away<br />From Home.
