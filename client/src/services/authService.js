@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:3000';
+const API_URL = (import.meta.env.VITE_SERVER_URL || 'http://localhost:3000').replace(/\/$/, '');
 
 export const syncUserWithBackend = async (firebaseUser, role = 'owner') => {
   const token = await firebaseUser.getIdToken();

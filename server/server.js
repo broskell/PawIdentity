@@ -17,14 +17,22 @@ import adminRoutes from './routes/admin.js';
 // Load environment variables
 dotenv.config();
 
-// Connect to MongoDB
-await connectDB();
-
 const app = express();
 
 // Middlewares
 app.use(cors());
 app.use(express.json());
+
+// Database connection middleware
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    console.error('Database connection middleware error:', error.message);
+    res.status(500).json({ success: false, message: 'Database connection failed' });
+  }
+});
 
 // Health Check Route
 app.get('/api/health', (req, res) => {

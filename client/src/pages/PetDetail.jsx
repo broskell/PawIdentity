@@ -16,7 +16,7 @@ export default function PetDetail() {
   const [formSubmitting, setFormSubmitting] = useState(false);
   const [formSuccess, setFormSuccess] = useState('');
 
-  const API_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:3000';
+  const API_URL = (import.meta.env.VITE_SERVER_URL || 'http://localhost:3000').replace(/\/$/, '');
 
   useEffect(() => {
     let active = true;
