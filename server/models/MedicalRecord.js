@@ -33,4 +33,4 @@ const medicalRecordSchema = new mongoose.Schema(
   }
 );
 
-export const MedicalRecord = mongoose.model('MedicalRecord', medicalRecordSchema);
+export const MedicalRecord = mongoose.models.MedicalRecord || mongoose.model('MedicalRecord', medicalRecordSchema);

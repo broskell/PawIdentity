@@ -31,4 +31,4 @@ const vaccinationSchema = new mongoose.Schema(
   }
 );
 
-export const Vaccination = mongoose.model('Vaccination', vaccinationSchema);
+export const Vaccination = mongoose.models.Vaccination || mongoose.model('Vaccination', vaccinationSchema);

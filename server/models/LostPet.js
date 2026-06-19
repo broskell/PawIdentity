@@ -48,4 +48,4 @@ const lostPetSchema = new mongoose.Schema(
   }
 );
 
-export const LostPet = mongoose.model('LostPet', lostPetSchema);
+export const LostPet = mongoose.models.LostPet || mongoose.model('LostPet', lostPetSchema);

@@ -43,4 +43,4 @@ const scanLogSchema = new mongoose.Schema(
   }
 );
 
-export const ScanLog = mongoose.model('ScanLog', scanLogSchema);
+export const ScanLog = mongoose.models.ScanLog || mongoose.model('ScanLog', scanLogSchema);

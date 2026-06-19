@@ -1,11 +1,34 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
+
+let isConnected = false;
 
 export const connectDB = async () => {
+
+  if (isConnected) return;
+
   try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI);
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
+
+    const conn = await mongoose.connect(
+      process.env.MONGODB_URI,
+      {
+        dbName: "pawpass"
+      }
+    );
+
+    isConnected = true;
+
+    console.log(
+      "MongoDB Connected:",
+      conn.connection.host
+    );
+
   } catch (error) {
-    console.error(`MongoDB Connection Error: ${error.message}`);
-    process.exit(1);
+
+    console.error(
+      "MongoDB Connection Error:",
+      error.message
+    );
+
+    throw error;
   }
 };

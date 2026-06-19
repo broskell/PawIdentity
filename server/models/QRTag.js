@@ -36,4 +36,4 @@ const qrTagSchema = new mongoose.Schema(
   }
 );
 
-export const QRTag = mongoose.model('QRTag', qrTagSchema);
+export const QRTag = mongoose.models.QRTag || mongoose.model('QRTag', qrTagSchema);
